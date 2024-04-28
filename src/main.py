@@ -1,4 +1,5 @@
 import boto3
+from boto3.dynamodb.conditions import Attr
 
 
 
@@ -11,14 +12,13 @@ def init_dynamodb():
 
 def ddb_operations(event: any):
     init_dynamodb()
-    
+    table = dynamo_resource.Table("test-table")
     if event == "put_item":
         record = {
             "partitionKey": "id",
             "name": "testname",
             "value": 1
         }
-        table = dynamo_resource.Table("test-table")
         return table.put_item(Item=record)
     elif event == "scan":
         done = False
@@ -26,11 +26,13 @@ def ddb_operations(event: any):
         items = []
         while not done:
             if start_key:
-                response = table.scan(FilterExpression=Attr("name").eq("placeholder"), ExclusiveStartKey=start_key)
+                response = table.scan(FilterExpression=Attr("name").eq("testname"), ExclusiveStartKey=start_key)
             else:
-                response = table.scan(FilterExpression=Attr("name").eq("placeholder"))
+                response = table.scan(FilterExpression=Attr("name").eq("testname"))
             for item in response.get("Items", []):
                 items.append(item)
             start_key = response.get('LastEvaluatedKey', None)
             done = start_key is None
         return items
+    else:
+        return "Event not supported"

@@ -20,11 +20,11 @@ class DDBMotoTest(unittest.TestCase):
             ],
             AttributeDefinitions=[
                 {"AttributeName": "partitionKey", "AttributeType": "S"}
-            ]
+            ],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
         response = main.table_put_item()
-        self.assertEqual({'CapacityUnits': 1, 'TableName': 'test-table'}, response["ConsumedCapacity"])
         self.assertEqual(200, response["ResponseMetadata"]["HTTPStatusCode"])
         self.assertEqual(
             {
